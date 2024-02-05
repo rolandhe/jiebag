@@ -1,6 +1,9 @@
 package jieba
 
-import "path"
+import (
+	"fmt"
+	"path"
+)
 
 type ModeStyle int
 
@@ -35,6 +38,10 @@ type SegToken struct {
 	End   int
 }
 
+func (st *SegToken) String() string {
+	return fmt.Sprintf("['%s', %d, %d]", st.Word, st.Start, st.End)
+}
+
 type sentenceTrace struct {
 	from   int
 	to     int
@@ -66,15 +73,16 @@ func (h *SegmentHandler) SegParagraph(s string, mode ModeStyle) []*SegToken {
 		if st.length() > 0 {
 			tokens := segSentence(h.dict, h.hmm, paragraph[st.from:st.to])
 			segTokens = h.accept(segTokens, tokens, st.offset, mode)
-			st.from = i + 1
-			st.to = i + 1
 		}
+
 		segTokens = append(segTokens, &SegToken{
-			Word:  string([]rune{nr}),
-			Start: st.offset,
-			End:   st.offset + 1,
+			Word:  string(paragraph[i : i+1]),
+			Start: i,
+			End:   i + 1,
 		})
-		st.offset++
+		st.from = i + 1
+		st.to = i + 1
+		st.offset = i + 1
 	}
 
 	if st.length() > 0 {
@@ -96,7 +104,7 @@ func (h *SegmentHandler) accept(segTokens []*SegToken, tokens []string, offset i
 			Start: offset,
 			End:   end,
 		})
-		offset += end
+		offset = end
 	}
 
 	return segTokens
@@ -142,6 +150,9 @@ func segSentence(dict Trie, hmm HmmSeg, sentence []rune) []string {
 
 	var st sentenceTrace
 	for _, seg := range segments {
+		//if seg.Start > st.to {
+		//	st.to = seg.Start
+		//}
 		if seg.len() == 1 {
 			st.to = seg.End
 			continue
@@ -156,10 +167,15 @@ func segSentence(dict Trie, hmm HmmSeg, sentence []rune) []string {
 		st.to = seg.End
 	}
 
-	l := len(sentence)
+	//l := len(sentence)
 
-	if st.from < l {
-		f(sentence[st.from:])
+	//if st.from < l {
+	//	f(sentence[st.from:])
+	//}
+
+	if st.length() > 0 {
+		needHmmStat := sentence[st.from:st.to]
+		f(needHmmStat)
 	}
 
 	return tokens

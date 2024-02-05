@@ -106,14 +106,14 @@ func (node *trieNode) hasNext() bool {
 	return l > 0
 }
 
-func (node *trieNode) Match(sentence []rune) []*Segment {
+func (root *trieNodeHolder) Match(sentence []rune) []*Segment {
 	l := len(sentence)
 	if l == 0 {
 		return nil
 	}
 	matchSegTokens := make([][]*segTokenInternal, l)
 	for i := 0; i < l; i++ {
-		matchSegTokens[i] = node.matchForward(i, sentence[i:])
+		matchSegTokens[i] = root.matchForward(i, sentence[i:])
 	}
 	stat := make([]*segTokenInternal, l)
 
@@ -125,7 +125,7 @@ func (node *trieNode) Match(sentence []rune) []*Segment {
 	var result []*Segment
 	for last != nil {
 		result = append(result, last.Segment)
-		if last.End >= l-1 {
+		if last.End > l-1 {
 			break
 		}
 		last = stat[last.End]
@@ -136,12 +136,12 @@ func (node *trieNode) Match(sentence []rune) []*Segment {
 
 func calc(stat []*segTokenInternal, thisSegTokens []*segTokenInternal, pos int) {
 	l := len(stat)
-	if len(thisSegTokens) == 0 {
-		if pos != l-1 {
-			stat[pos] = stat[pos+1]
-		}
-		return
-	}
+	//if len(thisSegTokens) == 0 {
+	//	if pos != l-1 {
+	//		stat[pos] = stat[pos+1]
+	//	}
+	//	return
+	//}
 	var maxWeight = math.Inf(-1)
 	var maxIndex int
 	for i, seg := range thisSegTokens {
@@ -164,9 +164,9 @@ func calc(stat []*segTokenInternal, thisSegTokens []*segTokenInternal, pos int) 
 	}
 }
 
-func (node *trieNode) matchForward(from int, statement []rune) []*segTokenInternal {
+func (root *trieNodeHolder) matchForward(from int, statement []rune) []*segTokenInternal {
 	var ret []*segTokenInternal
-	p := node
+	p := root.trieNode
 
 	size := 0
 	for _, v := range statement {
@@ -188,6 +188,15 @@ func (node *trieNode) matchForward(from int, statement []rune) []*segTokenIntern
 			})
 		}
 		p = found
+	}
+	if ret == nil {
+		ret = append(ret, &segTokenInternal{
+			Segment: &Segment{
+				Start: from,
+				End:   from + 1,
+			},
+			weight: root.minFreq,
+		})
 	}
 
 	return ret
@@ -262,5 +271,6 @@ func splitDictLine(line string) (string, float64, error) {
 		return "", 0.0, errors.New("bad items:" + line)
 	}
 	freq, err := strconv.ParseFloat(items[1], 64)
-	return items[0], freq, err
+	word := strings.ToLower(items[0])
+	return word, freq, err
 }

@@ -27,7 +27,7 @@ func isCjkNormal(r rune) bool {
 }
 
 func isEnglish(r rune) bool {
-	return r >= 0x0030 && r <= 0x0039
+	return (r >= 0x0041 && r <= 0x005A) || (r >= 0x0061 && r <= 0x007A)
 }
 
 func isDigit(r rune) bool {
