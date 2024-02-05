@@ -99,28 +99,19 @@ var sentenceCases = []string{
 	"鲜芋仙 3",
 }
 
-func TestMatch(t *testing.T) {
-	rootDict, err := filepath.Abs("../dict")
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	handler, err := MewSegmentHandler(rootDict)
-
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	tokens := handler.SegParagraph("三黄鸡99元和太子奶18.90元。", ModeSearch)
-	rjson, _ := json.Marshal(tokens)
-	fmt.Printf("%s\n", string(rjson))
-}
-
 func TestCutForSearch(t *testing.T) {
 	handler := loadHandler()
 	for _, sentence := range sentenceCases {
 		tokens := handler.SegParagraph(sentence, ModeSearch)
-		//rjson, _ := json.Marshal(tokens)
+		fmt.Println(sentence)
+		fmt.Printf("%s\n", tokens)
+	}
+}
+
+func TestCutForIndex(t *testing.T) {
+	handler := loadHandler()
+	for _, sentence := range sentenceCases {
+		tokens := handler.SegParagraph(sentence, ModeIndex)
 		fmt.Println(sentence)
 		fmt.Printf("%s\n", tokens)
 	}
@@ -158,4 +149,21 @@ func loadHandler() *SegmentHandler {
 		log.Fatal(err)
 	}
 	return handler
+}
+
+func TestMatch(t *testing.T) {
+	rootDict, err := filepath.Abs("../dict")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	handler, err := MewSegmentHandler(rootDict)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	tokens := handler.SegParagraph("三黄鸡99元和太子奶18.90元。", ModeSearch)
+	rjson, _ := json.Marshal(tokens)
+	fmt.Printf("%s\n", string(rjson))
 }

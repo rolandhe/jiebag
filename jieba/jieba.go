@@ -150,9 +150,6 @@ func segSentence(dict Trie, hmm HmmSeg, sentence []rune) []string {
 
 	var st sentenceTrace
 	for _, seg := range segments {
-		//if seg.Start > st.to {
-		//	st.to = seg.Start
-		//}
 		if seg.len() == 1 {
 			st.to = seg.End
 			continue
@@ -166,12 +163,6 @@ func segSentence(dict Trie, hmm HmmSeg, sentence []rune) []string {
 		st.from = seg.End
 		st.to = seg.End
 	}
-
-	//l := len(sentence)
-
-	//if st.from < l {
-	//	f(sentence[st.from:])
-	//}
 
 	if st.length() > 0 {
 		needHmmStat := sentence[st.from:st.to]

@@ -136,12 +136,6 @@ func (root *trieNodeHolder) Match(sentence []rune) []*Segment {
 
 func calc(stat []*segTokenInternal, thisSegTokens []*segTokenInternal, pos int) {
 	l := len(stat)
-	//if len(thisSegTokens) == 0 {
-	//	if pos != l-1 {
-	//		stat[pos] = stat[pos+1]
-	//	}
-	//	return
-	//}
 	var maxWeight = math.Inf(-1)
 	var maxIndex int
 	for i, seg := range thisSegTokens {
@@ -168,6 +162,16 @@ func (root *trieNodeHolder) matchForward(from int, statement []rune) []*segToken
 	var ret []*segTokenInternal
 	p := root.trieNode
 
+	fCreate := func(wl int, freq float64) *segTokenInternal {
+		return &segTokenInternal{
+			Segment: &Segment{
+				Start: from,
+				End:   from + wl,
+			},
+			weight: freq,
+		}
+	}
+
 	size := 0
 	for _, v := range statement {
 		if p.children == nil {
@@ -179,24 +183,12 @@ func (root *trieNodeHolder) matchForward(from int, statement []rune) []*segToken
 		}
 		size++
 		if found.wordEnd {
-			ret = append(ret, &segTokenInternal{
-				Segment: &Segment{
-					Start: from,
-					End:   from + size,
-				},
-				weight: found.freq,
-			})
+			ret = append(ret, fCreate(size, found.freq))
 		}
 		p = found
 	}
 	if ret == nil {
-		ret = append(ret, &segTokenInternal{
-			Segment: &Segment{
-				Start: from,
-				End:   from + 1,
-			},
-			weight: root.minFreq,
-		})
+		ret = append(ret, fCreate(1, root.minFreq))
 	}
 
 	return ret
