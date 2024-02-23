@@ -26,7 +26,7 @@ func newDictTrie(baseDict string, userDictDir string) (Trie, error) {
 	root := &trieNodeHolder{
 		trieNode:  &trieNode{},
 		minFreq:   0x1.fffffffffffffp+1023,
-		shortWord: map[string]int8{},
+		shortWord: map[string]struct{}{},
 	}
 
 	if err := loadBase(root, baseDict); err != nil {
@@ -88,7 +88,6 @@ type Trie interface {
 
 type trieNode struct {
 	children map[rune]*trieNode
-	value    rune
 
 	wordEnd bool
 	freq    float64
@@ -98,7 +97,7 @@ type trieNodeHolder struct {
 	*trieNode
 	total     float64
 	minFreq   float64
-	shortWord map[string]int8
+	shortWord map[string]struct{}
 }
 
 func (node *trieNode) hasNext() bool {
@@ -235,9 +234,7 @@ func (root *trieNodeHolder) addWord(runes []rune, freq float64, afterWord func(n
 		isEnd := i == l-1
 		curNode := p.children[v]
 		if curNode == nil {
-			curNode = &trieNode{
-				value: v,
-			}
+			curNode = &trieNode{}
 			p.children[v] = curNode
 		}
 		if isEnd {
@@ -249,7 +246,7 @@ func (root *trieNodeHolder) addWord(runes []rune, freq float64, afterWord func(n
 		}
 		p = curNode
 	}
-	root.shortWord[string(runes)] = 1
+	root.shortWord[string(runes)] = struct{}{}
 }
 
 func (root *trieNodeHolder) ExistShortWord(word string) bool {
