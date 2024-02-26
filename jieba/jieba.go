@@ -71,7 +71,7 @@ func (h *SegmentHandler) SegParagraph(s string, mode ModeStyle) []*SegToken {
 			continue
 		}
 		if st.length() > 0 {
-			tokens := segSentence(h.dict, h.hmm, paragraph[st.from:st.to])
+			tokens := h.segSentence(paragraph[st.from:st.to])
 			segTokens = h.accept(segTokens, tokens, st.offset, mode)
 		}
 
@@ -86,7 +86,7 @@ func (h *SegmentHandler) SegParagraph(s string, mode ModeStyle) []*SegToken {
 	}
 
 	if st.length() > 0 {
-		tokens := segSentence(h.dict, h.hmm, paragraph[st.from:st.to])
+		tokens := h.segSentence(paragraph[st.from:st.to])
 		segTokens = h.accept(segTokens, tokens, st.offset, mode)
 	}
 	return segTokens
@@ -133,7 +133,9 @@ func (h *SegmentHandler) acceptShort(segTokens []*SegToken, token []rune, offset
 	return segTokens
 }
 
-func segSentence(dict Trie, hmm HmmSeg, sentence []rune) []string {
+func (h *SegmentHandler) segSentence(sentence []rune) []string {
+	dict := h.dict
+	hmm := h.hmm
 	segments := dict.Match(sentence)
 
 	var tokens []string

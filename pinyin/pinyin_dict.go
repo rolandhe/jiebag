@@ -158,8 +158,10 @@ func (root *DictNode) addWord(word string, pys []string) {
 	}
 }
 
-func (root *DictNode) Convert(stmt string, formatter PinyinFmt) []string {
-	next := []rune(stmt)
+func (root *DictNode) ConvertString(next string, formatter PinyinFmt) []string {
+	return root.Convert([]rune(next), formatter)
+}
+func (root *DictNode) Convert(next []rune, formatter PinyinFmt) []string {
 	dataLen := len(next)
 	allLen := dataLen
 
@@ -172,7 +174,7 @@ func (root *DictNode) Convert(stmt string, formatter PinyinFmt) []string {
 		if wp != nil {
 			for startIndex > 0 {
 				startIndex--
-				ret = append(ret, " ")
+				ret = append(ret, "")
 			}
 			ret = append(ret, wp.getFirstString(formatter)...)
 		}
@@ -182,7 +184,7 @@ func (root *DictNode) Convert(stmt string, formatter PinyinFmt) []string {
 	allLen -= len(ret)
 	for allLen > 0 {
 		allLen--
-		ret = append(ret, " ")
+		ret = append(ret, "")
 	}
 
 	return ret

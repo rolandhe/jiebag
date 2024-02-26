@@ -200,7 +200,7 @@ func (root *trieNodeHolder) loadDict(fp string, afterWord func(nd *trieNode)) er
 	}
 	defer f.Close()
 
-	preventRepeat := map[string]int8{}
+	preventRepeat := map[string]struct{}{}
 
 	scan := bufio.NewScanner(f)
 	for scan.Scan() {
@@ -214,7 +214,7 @@ func (root *trieNodeHolder) loadDict(fp string, afterWord func(nd *trieNode)) er
 			log.Printf("%s is repeat in %s\n", line, fp)
 			continue
 		}
-		preventRepeat[word] = 1
+		preventRepeat[word] = struct{}{}
 		root.addWord([]rune(word), freq, afterWord)
 	}
 
