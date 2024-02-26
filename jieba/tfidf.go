@@ -65,7 +65,7 @@ func calMedium(idMap map[string]float64) float64 {
 }
 
 func loadStopWord(rootPath string) (map[string]struct{}, error) {
-	fileFullName := path.Join(rootPath, "stop_words.txt")
+	fileFullName := path.Join(rootPath, "idf_stop_words.txt")
 
 	f, err := os.Open(fileFullName)
 	if err != nil {
