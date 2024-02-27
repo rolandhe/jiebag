@@ -285,19 +285,19 @@ func loadFile(filePath string, acceptor func(line string)) error {
 	return scan.Err()
 }
 
-// unicodeTone
-// <b>Algorithm for determining location of tone mark</b><br/>
+// unicodeTone Algorithm from nlp-lang java project, see pinyin.PinyinFormatter class
+//
+// Algorithm for determining location of tone mark,
 // A simple algorithm for determining the vowel on which the tone mark
-// appears is as follows:<br/>
-// <ol>
-// <li>First, look for an "a" or an "e". If either vowel appears, it takes
+// appears is as follows:
+//
+// 1. First, look for an "a" or an "e". If either vowel appears, it takes
 // the tone mark. There are no possible pinyin syllables that contain both
 // an "a" and an "e".
-// <li>If there is no "a" or "e", look for an "ou". If "ou" appears, then
+// 2. If there is no "a" or "e", look for an "ou". If "ou" appears, then
 // the "o" takes the tone mark.
-// <li>If none of the above cases hold, then the last vowel in the syllable
+// 3.If none of the above cases hold, then the last vowel in the syllable
 // takes the tone mark.
-// </ol>
 func unicodeTone(py string, tone uint8) string {
 	data := []rune(py)
 	l := len(data)
