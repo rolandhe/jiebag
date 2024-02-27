@@ -9,11 +9,23 @@ import (
 	"strings"
 )
 
+var unicodeToneMap = map[uint8][]rune{}
+
+func init() {
+	unicodeToneMap[uint8('a')] = []rune("āáăàa")
+	unicodeToneMap[uint8('e')] = []rune("ēéĕèe")
+	unicodeToneMap[uint8('i')] = []rune("īíĭìi")
+	unicodeToneMap[uint8('o')] = []rune("ōóŏòo")
+	unicodeToneMap[uint8('u')] = []rune("ūúŭùu")
+	unicodeToneMap[uint8('v')] = []rune("ǖǘǚǜü")
+}
+
 type PinyinFmt int
 
 const (
-	WithoutTone PinyinFmt = 0
-	ToneTail    PinyinFmt = 1
+	WithoutTone     PinyinFmt = 0
+	ToneTail        PinyinFmt = 1
+	UnicodeWithTone PinyinFmt = 2
 )
 
 type singlePinyin struct {
@@ -27,6 +39,9 @@ func (sp *singlePinyin) toString(formatter PinyinFmt) string {
 	}
 	if formatter == ToneTail {
 		return fmt.Sprintf("%s%d", sp.word, sp.tone)
+	}
+	if formatter == UnicodeWithTone {
+		return unicodeTone(sp.word, sp.tone)
 	}
 	return ""
 }
@@ -268,4 +283,58 @@ func loadFile(filePath string, acceptor func(line string)) error {
 	}
 
 	return scan.Err()
+}
+
+// unicodeTone
+// <b>Algorithm for determining location of tone mark</b><br/>
+// A simple algorithm for determining the vowel on which the tone mark
+// appears is as follows:<br/>
+// <ol>
+// <li>First, look for an "a" or an "e". If either vowel appears, it takes
+// the tone mark. There are no possible pinyin syllables that contain both
+// an "a" and an "e".
+// <li>If there is no "a" or "e", look for an "ou". If "ou" appears, then
+// the "o" takes the tone mark.
+// <li>If none of the above cases hold, then the last vowel in the syllable
+// takes the tone mark.
+// </ol>
+func unicodeTone(py string, tone uint8) string {
+	data := []rune(py)
+	l := len(data)
+	var bak []int
+	ouIndex := -1
+	finish := false
+	for i := l - 1; i >= 0; i-- {
+		c := data[i]
+		if c == 'a' || c == 'e' {
+			data[i] = unicodeToneMap[uint8(c)][tone-1]
+			finish = true
+			break
+		}
+		if c == 'o' || c == 'i' || c == 'v' {
+			bak = append(bak, i)
+			continue
+		}
+		if c == 'u' {
+			if i > 0 && data[i-1] == 'o' {
+				i--
+				ouIndex = i
+				continue
+			}
+			bak = append(bak, i)
+			continue
+		}
+	}
+	if !finish && ouIndex != -1 {
+		data[ouIndex] = unicodeToneMap[uint8(data[ouIndex])][tone-1]
+		finish = true
+	}
+	if !finish {
+		if len(bak) == 0 {
+			panic(py + " is not valid pinyin")
+		}
+		c := data[bak[0]]
+		data[bak[0]] = unicodeToneMap[uint8(c)][tone-1]
+	}
+	return string(data)
 }
