@@ -3,6 +3,7 @@ package jieba
 import (
 	"bufio"
 	"cmp"
+	"fmt"
 	"os"
 	"path"
 	"slices"
@@ -91,6 +92,10 @@ func loadStopWord(rootPath string) (map[string]struct{}, error) {
 type Keyword struct {
 	Word       string
 	TfidfValue float64
+}
+
+func (kw *Keyword) String() string {
+	return fmt.Sprintf("%s,%g", kw.Word, kw.TfidfValue)
 }
 
 type Tfidf interface {
