@@ -19,12 +19,12 @@ type segTokenInternal struct {
 	count int
 }
 
-type LatinGuessNode struct {
-	children map[uint8]*LatinGuessNode
+type PureGuessNode struct {
+	children map[uint8]*PureGuessNode
 	wordEnd  bool
 }
 
-func (node *LatinGuessNode) Guess(stmt string) []string {
+func (node *PureGuessNode) Guess(stmt string) []string {
 	all := []uint8(stmt)
 	l := len(all)
 	if l == 0 {
@@ -78,7 +78,7 @@ func calc(stat []*segTokenInternal, thisSegTokens []*segment, pos int) {
 	}
 }
 
-func (node *LatinGuessNode) matchForward(from int, statement []uint8) []*segment {
+func (node *PureGuessNode) matchForward(from int, statement []uint8) []*segment {
 	var ret []*segment
 	p := node
 
@@ -111,17 +111,17 @@ func (node *LatinGuessNode) matchForward(from int, statement []uint8) []*segment
 	return ret
 }
 
-func (node *LatinGuessNode) addWord(word string) {
+func (node *PureGuessNode) addWord(word string) {
 	all := []uint8(word)
 	l := len(all)
 	p := node
 	for i, c := range all {
 		if !p.hasChild() {
-			p.children = make(map[uint8]*LatinGuessNode)
+			p.children = make(map[uint8]*PureGuessNode)
 		}
 		child, ok := p.children[c]
 		if !ok {
-			child = &LatinGuessNode{}
+			child = &PureGuessNode{}
 			p.children[c] = child
 		}
 		if !child.wordEnd && (i == 0 || i == l-1) {
@@ -131,11 +131,11 @@ func (node *LatinGuessNode) addWord(word string) {
 	}
 }
 
-func (node *LatinGuessNode) hasChild() bool {
+func (node *PureGuessNode) hasChild() bool {
 	return len(node.children) > 0
 }
 
-func LoadGuess(rootPath string) (*LatinGuessNode, error) {
+func LoadGuess(rootPath string) (*PureGuessNode, error) {
 	fp := path.Join(rootPath, "pinyin_alphabet.txt")
 	f, err := os.Open(fp)
 	if err != nil {
@@ -143,7 +143,7 @@ func LoadGuess(rootPath string) (*LatinGuessNode, error) {
 	}
 	defer f.Close()
 
-	root := &LatinGuessNode{}
+	root := &PureGuessNode{}
 
 	preventRepeat := map[string]struct{}{}
 
