@@ -19,6 +19,6 @@ func TestConvert(t *testing.T) {
 }
 
 func TestUnicodeTone(t *testing.T) {
-	utone := unicodeTone("zhu", 3)
+	utone := unicodeTone("biao", 3)
 	fmt.Println(utone)
 }
