@@ -18,23 +18,7 @@ func TestConvert(t *testing.T) {
 	fmt.Println(pinyinList1)
 }
 
-func TestCloser(t *testing.T) {
-	pos := 100
-
-	var ret []int
-	f := func() {
-		ret = append(ret, pos)
-		fmt.Println(pos)
-	}
-
-	f()
-	pos = 123
-	f()
-
-	fmt.Println(ret)
-}
-
 func TestUnicodeTone(t *testing.T) {
-	utone := unicodeTone("er", 3)
+	utone := unicodeTone("zhu", 3)
 	fmt.Println(utone)
 }
