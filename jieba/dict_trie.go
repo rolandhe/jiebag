@@ -23,9 +23,10 @@ type segTokenInternal struct {
 }
 
 func newDictTrie(baseDict string, userDictDir string) (Trie, error) {
+
 	root := &trieNodeHolder{
 		trieNode:  &trieNode{},
-		minFreq:   0x1.fffffffffffffp+1023,
+		minFreq:   math.MaxFloat64,
 		shortWord: map[string]struct{}{},
 	}
 

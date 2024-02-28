@@ -142,6 +142,7 @@ func (h *SegmentHandler) segSentence(sentence []rune) []string {
 
 	f := func(needHmmStat []rune) {
 		word := string(needHmmStat)
+		// is is a word, but it is ignored because another cut path is best
 		if dict.ExistShortWord(word) {
 			tokens = append(tokens, word)
 		} else {
