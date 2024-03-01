@@ -40,12 +40,15 @@ func isConnector(r rune) bool {
 }
 
 func regularize(input rune) rune {
+	// 全角空格
 	if input == 12288 {
 		return 32
 	}
+	// 繁体->简体
 	if input > 65280 && input < 65375 {
 		return input - 65248
 	}
+	// 大写转小写
 	if input >= 'A' && input <= 'Z' {
 		return input + 32
 	}
